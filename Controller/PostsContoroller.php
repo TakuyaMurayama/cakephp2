@@ -4,7 +4,7 @@ class PostsController extends AppController {
 	public $components = array('Paginator', 'Session', 'Flash');
 
 	public $helpers = array('Html', 'Form', 'Flash');
-	
+
 	public function isAuthorized($user) {
 		if ($this->action === 'add') {
 			return true;
@@ -27,6 +27,7 @@ class PostsController extends AppController {
 		$user = $this->Auth->user();
 		$this->set('user', $user);
 	}
+
 
 	public function view($id) {
 		if (!$id) {
@@ -84,11 +85,11 @@ class PostsController extends AppController {
 				$this->Flash->error(__('編集できませんでした'));
 			}
 		}
-
 		if (!$this->request->data) {
 			$this->request->data = $post;
 		}
 	}
+
 	public function delete($id) {
 		if ($this->request->is('get')) {
 			throw new MethodNotAllowedException();
@@ -107,16 +108,14 @@ class PostsController extends AppController {
 			)
 		);
 			if ($total === 1) {
-				$this->Post->delete($id);
-				$this->Flash->success(
-					__('id: %sの投稿は削除されました', h($id))
-				);
-			} else {
-				$this->Flash->error(
-					__('id: %sの投稿は削除できませんでした', h($id))
-				);
+				if(!$this->Post->delete($id)) {
+					$this->Flash->success(
+						__('id: %sの投稿は削除されました', h($id))
+					);
+				}
+				return $this->redirect(array('action' => 'index'));
 			}
-			return $this->redirect(array('action' => 'index'));
 		}
 	}
 }
+

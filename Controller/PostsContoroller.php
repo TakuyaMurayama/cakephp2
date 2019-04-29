@@ -4,7 +4,7 @@ class PostsController extends AppController {
 	public $components = array('Paginator', 'Session', 'Flash');
 
 	public $helpers = array('Html', 'Form', 'Flash');
-
+	
 	public function isAuthorized($user) {
 		if ($this->action === 'add') {
 			return true;

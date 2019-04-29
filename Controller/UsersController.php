@@ -1,13 +1,14 @@
 <?php
 App::uses('AppController', 'Controller');
 
-
 class UsersController extends AppController {
 
 	public $helpers = array(
 		"Form",
 	);
+	
 	public $components = array('Paginator', 'Session');
+	
 	public $uses = ['User'];
 
 	public function beforeFilter() {

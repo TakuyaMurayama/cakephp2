@@ -51,8 +51,6 @@ class UsersController extends AppController {
 		$email = $this->Session->read('email');
 		$this->set('email', $email);
 		$this->set('id', $id);
-		debug($email);
-		debug($id);
 		$total = $this->User->find('count', array(
 			'conditions' => array(
 				'id' => $id,
@@ -76,7 +74,6 @@ class UsersController extends AppController {
 			)
 		);
 			if ($total === 1) {
-				debug($total);
 				if(isset($this->request->data['delete'])) {
 					$image = array(
 						'User' => array(

@@ -29,7 +29,35 @@ class User extends AppModel {
 				'rule' => 'isUnique',
 				'message' => 'すでに使われているアドレス'
 			)
-		)
+		),
+		'image' => array(
+			'upload-file' => array(
+				'rule' => array( 'uploadError'),
+				'message' => array( 'Error uploading file')
+			),
+			'extension' => array(
+				'rule' => array( 'extension', array(
+					'jpg', 'jpeg', 'png', 'gif')
+				),
+				'message' => array( 'file extension error')
+			),
+			'mimetype' => array(
+				'rule' => array( 'mimeType', array(
+					'image/jpeg', 'image/png', 'image/gif')
+				),
+				'message' => array( 'MIME type error')
+			),
+			'size' => array(
+				'maxFileSize' => array(
+					'rule' => array( 'fileSize', '<=', '10MB'),
+					'message' => array( 'file size error')
+				),
+				'minFileSize' => array(
+					'rule' => array( 'fileSize', '>',  0),
+					'message' => array( 'file size error')
+				),
+			),
+		),
 	);
 }
 

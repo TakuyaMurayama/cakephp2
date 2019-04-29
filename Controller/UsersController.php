@@ -6,9 +6,9 @@ class UsersController extends AppController {
 	public $helpers = array(
 		"Form",
 	);
-	
+
 	public $components = array('Paginator', 'Session');
-	
+
 	public $uses = ['User'];
 
 	public function beforeFilter() {
@@ -52,6 +52,8 @@ class UsersController extends AppController {
 		$email = $this->Session->read('email');
 		$this->set('email', $email);
 		$this->set('id', $id);
+		debug($email);
+		debug($id);
 		$total = $this->User->find('count', array(
 			'conditions' => array(
 				'id' => $id,
@@ -66,7 +68,7 @@ class UsersController extends AppController {
 		if ($this->request->is('post') || $this->request->is('put')) {
 			$email = $this->Session->read('email');
 			$this->User->id = $id;
-			$tmp =  $this->request->data['User']['img']['tmp_name'];
+			$tmp =  $this->request->data['User']['image']['tmp_name'];
 			$total = $this->User->find('count', array(
 				'conditions' => array(
 					'id' => $id,
@@ -78,7 +80,7 @@ class UsersController extends AppController {
 				if(isset($this->request->data['delete'])) {
 					$image = array(
 						'User' => array(
-							'img' => null,
+							'image' => null,
 						)
 					);
 					if ($this->User->save($image)) {
@@ -86,21 +88,21 @@ class UsersController extends AppController {
 						$this->redirect(array('controller' => 'posts', 'action' => 'index'));
 					}
 				} elseif (is_uploaded_file($tmp)) {
-					$file_name = $this->request->data['User']['img']['name'];
+					$file_name = $this->request->data['User']['image']['name'];
 					$new = uniqid();
 					rename($file_name, $new);
 					$file =  WWW_ROOT . 'img' . DS . $new;
 					if (move_uploaded_file($tmp, $file)) {
 						$image = array(
 							'User' => array(
-								'img' => $new,
+								'image' => $new,
 							)
 						);
-						if ($this->User->save($image)) {
+						if ($this->User->save($image, array('validate' => false))) {
 							$this->Session->setFlash(__('画像が保存されました'));
 							$this->redirect(array('controller' => 'posts', 'action' => 'index'));
 						} else {
-							$this->Session->setFlash(__('The upload could not be saved. Please, try again.'));
+							$this->Session->setFlash(__('画像が保存できませんでした'));
 						}
 					}
 				} else {
@@ -171,3 +173,4 @@ class UsersController extends AppController {
 		}
 	}
 }
+

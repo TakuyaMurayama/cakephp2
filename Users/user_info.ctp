@@ -11,10 +11,10 @@ echo $user_info['User']['comment'];
 ?>
 <h3>画像</h3>
 <?php
-if ($pic['User']['img'] === null) {
+if ($pic['User']['image'] === null) {
 echo "画像が登録されていません";
 } else {
-echo $this->Html->image($pic['User']['img'], array('width'=>'300', 'height'=>'300'));
+echo $this->Html->image($pic['User']['image'], array('width'=>'300', 'height'=>'300'));
 }
 ?>
 <!--編集 -->

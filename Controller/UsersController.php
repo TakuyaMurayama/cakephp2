@@ -52,8 +52,6 @@ class UsersController extends AppController {
 		$email = $this->Session->read('email');
 		$this->set('email', $email);
 		$this->set('id', $id);
-		debug($email);
-		debug($id);
 		$total = $this->User->find('count', array(
 			'conditions' => array(
 				'id' => $id,
@@ -128,7 +126,6 @@ class UsersController extends AppController {
 
 	public function user_info_edit($id = null) {
 		$email = $this->Session->read('email');
-		debug($email);
 		if (!$id) {
 			throw new NotFoundException(__('不正なID'));
 		}

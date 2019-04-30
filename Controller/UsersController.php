@@ -66,8 +66,10 @@ class UsersController extends AppController {
 
 	public function user_pic($id = null) {
 		if ($this->request->is('post') || $this->request->is('put')) {
-			$email = $this->Session->read('email');
+			$this->User->set($this->data);
+			$this->User->validates();
 			$this->User->id = $id;
+			$email = $this->Session->read('email');
 			$tmp =  $this->request->data['User']['image']['tmp_name'];
 			$total = $this->User->find('count', array(
 				'conditions' => array(
@@ -89,21 +91,28 @@ class UsersController extends AppController {
 					}
 				} elseif (is_uploaded_file($tmp)) {
 					$file_name = $this->request->data['User']['image']['name'];
-					$new = uniqid();
-					rename($file_name, $new);
-					$file =  WWW_ROOT . 'img' . DS . $new;
-					if (move_uploaded_file($tmp, $file)) {
-						$image = array(
-							'User' => array(
-								'image' => $new,
-							)
-						);
-						if ($this->User->save($image, array('validate' => false))) {
-							$this->Session->setFlash(__('画像が保存されました'));
-							$this->redirect(array('controller' => 'posts', 'action' => 'index'));
-						} else {
-							$this->Session->setFlash(__('画像が保存できませんでした'));
+					$this->User->set($file_name);
+					if($this->User->validates()){
+						echo "success";
+						$new = uniqid();
+						rename($file_name, $new);
+						$file =  WWW_ROOT . 'img' . DS . $new;
+						if (move_uploaded_file($tmp, $file)) {
+							$image = array(
+								'User' => array(
+									'image' => $new,
+								)
+							);
+							if ($this->User->save($image, false)) {
+								$this->Session->setFlash(__('画像が保存されました'));
+								$this->redirect(array('controller' => 'posts', 'action' => 'index'));
+							} else {
+								$this->Session->setFlash(__('画像が保存できませんでした'));
+							}
 						}
+					}else{
+						$this->Session->setFlash(__('バリデーションエラー'));
+						$this->redirect(array('controller' => 'posts', 'action' => 'index'));
 					}
 				} else {
 					echo "正しくアップロードされていません";
@@ -173,4 +182,5 @@ class UsersController extends AppController {
 		}
 	}
 }
+
 

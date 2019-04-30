@@ -19,10 +19,8 @@ class User extends AppModel {
 			)
 		),
 		'password' => array(
-			'required' => array(
-				'rule' => 'notBlank',
-				'message' => 'A password is required'
-			)
+			'rule' => 'notBlank',
+			'message' => 'A password is required'
 		),
 		'email' => array(
 			'required' => array(
@@ -30,34 +28,16 @@ class User extends AppModel {
 				'message' => 'すでに使われているアドレス'
 			)
 		),
-		'image' => array(
-			'upload-file' => array(
-				'rule' => array( 'uploadError'),
-				'message' => array( 'Error uploading file')
+		'image'=>array(
+			'rule1' => array(
+				'rule' => array('extension',array('jpg','jpeg','gif','png')),
+				'message' => '画像ではありません。',
+				'allowEmpty' => true,
 			),
-			'extension' => array(
-				'rule' => array( 'extension', array(
-					'jpg', 'jpeg', 'png', 'gif')
-				),
-				'message' => array( 'file extension error')
-			),
-			'mimetype' => array(
-				'rule' => array( 'mimeType', array(
-					'image/jpeg', 'image/png', 'image/gif')
-				),
-				'message' => array( 'MIME type error')
-			),
-			'size' => array(
-				'maxFileSize' => array(
-					'rule' => array( 'fileSize', '<=', '10MB'),
-					'message' => array( 'file size error')
-				),
-				'minFileSize' => array(
-					'rule' => array( 'fileSize', '>',  0),
-					'message' => array( 'file size error')
-				),
-			),
+			'rule2' => array(
+				'rule' => array('fileSize', '<=', '500000'),
+				'message' => '画像サイズは500KB以下でお願いします',
+			)
 		),
 	);
 }
-

@@ -1,6 +1,9 @@
 <?php
 App::uses('AppController', 'Controller');
 
+App::uses('CakeEmail', 'Network/Email');
+
+App::uses('Validation', 'Utility');
 class UsersController extends AppController {
 
 	public $helpers = array(
@@ -15,7 +18,7 @@ class UsersController extends AppController {
 		parent::beforeFilter();
 		$username = $this->User->find('all');
 		$this->Session->write('username',$username);
-		$this->Auth->allow('add','login', 'user_info');
+		$this->Auth->allow('add','login', 'user_info', 'mail', 'pass_reset');
 		$this->set('auth', $this->Auth);
 	}
 
@@ -43,6 +46,110 @@ class UsersController extends AppController {
 		$this->User->recursive = 0;
 		$this->set('users', $this->paginate());
 	}
+
+	public function mail() {
+		if ($this->request->is('post') || $this->request->is('put')) {
+			if(isset($this->request->data['reset'])) {
+				$reset = $this->request->data['reset'];
+				date_default_timezone_set('Asia/Tokyo');
+				$date = date("Y-m-d H:i", strtotime("+30 minute"));
+				$param = (md5(uniqid(rand(), true)));
+				$url = "https://procir-study.site/murayama/cake/cakephp-2.x/users/pass_reset/?name=$param";
+				$email_count = $this->User->find('count', array(
+					'conditions' => array(
+						'email' => $reset
+					),
+				)
+			);
+				if($email_count === 1) {
+					$email = new CakeEmail('gmail');
+					$email->config(array('log' => true));
+					$email->from(array('takuya.msb@gmail.com' => 'takuya in the sky'));
+					$email->to($reset);
+					$email->subject('高庭さんへ');
+					$email->send($url);
+					$this->User->updateAll(
+						array(
+							'User.param' => '"' . $param . '"',
+							'User.date' => '"' . $date . '"'
+						),
+						array(
+							'User.email' => $reset,
+						)
+					);
+					$this->Session->setFlash(__("再発行用URLを送信しました"));
+					$this->redirect(array('controller' => 'posts', 'action' => 'index'));
+				} else {
+					$this->Session->setFlash(__("再発行用URLを送信しました)"));
+					$this->redirect(array('controller' => 'posts', 'action' => 'index'));
+				}
+			}
+		}
+	}
+
+	public function pass_reset() {
+		$param = $this->request->query(array('name'));
+		$all = $this->User->find('all', array(
+			'conditions' => array(
+				'param' => $param
+			)
+		)
+	);
+		$count = $this->User->find('count', array(
+			'conditions' => array(
+				'param' => $param
+			)
+		)
+	);
+		if ($count === 0) {
+			$this->Session->setFlash(__("不正なアクセス"));
+			$this->redirect(array('controller' => 'posts', 'action' => 'index'));
+
+		} else {
+			$this->set('id', $all['0']['User']['id']);
+			if ($this->request->is('post') || $this->request->is('put')) {
+				if (!empty($this->request->data['User']['pass'])) {
+					$hidden = $this->request->data['User']['id'];
+					$reset = $this->request->data['User']['pass'];
+					$new_pass = AuthComponent::password($reset);
+					$time = date("Y-m-d H:i");
+					$date = $all['0']['User']['date'];
+					$total = $this->User->find('count', array(
+						'conditions' => array(
+							'id' => $hidden,
+							'param' => $param
+						)
+					)
+				);
+					if ($total === 1) {
+						if(strtotime($time) <= strtotime($date)) {
+							$this->User->updateAll(
+								array(
+									'User.password' => '"' . $new_pass . '"',
+									'User.date' => '0'
+								),
+								array(
+									'User.param' => $param,
+								)
+							);
+							$this->Session->setFlash(__("パスワードが変更されました"));
+							$this->redirect(array('controller' => 'posts', 'action' => 'index'));
+						} else {
+							$this->Session->setFlash(__("30分以上経過しているか、すでに変更しています"));
+							$this->redirect(array('controller' => 'posts', 'action' => 'index'));
+
+						}
+					} else {
+						$this->Session->setFlash(__("不正なアクセス"));
+						$this->redirect(array('controller' => 'posts', 'action' => 'index'));
+					}
+				} else {
+					$this->Session->setFlash(__("１文字以上入れてください"));
+				}
+			}
+		}
+	}
+
 
 	public function user_info($id) {
 		$user_info = $this->User->findById($id);
@@ -91,7 +198,6 @@ class UsersController extends AppController {
 					$file_name = $this->request->data['User']['image']['name'];
 					$this->User->set($file_name);
 					if($this->User->validates()){
-						echo "success";
 						$new = uniqid();
 						rename($file_name, $new);
 						$file =  WWW_ROOT . 'img' . DS . $new;
@@ -179,5 +285,3 @@ class UsersController extends AppController {
 		}
 	}
 }
-
-

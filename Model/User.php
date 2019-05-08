@@ -22,6 +22,13 @@ class User extends AppModel {
 			'rule' => 'notBlank',
 			'message' => 'A password is required'
 		),
+		'pass' => array(
+			'required' => array(
+				'rule' => 'notBlank',
+				'message' => 'notBlank',
+				'allowEmpty' => false,
+			)
+		),
 		'email' => array(
 			'required' => array(
 				'rule' => 'isUnique',
@@ -39,5 +46,10 @@ class User extends AppModel {
 				'message' => '画像サイズは500KB以下でお願いします',
 			)
 		),
-	);
+		'reset' => array(
+				'rule1' => array(
+					'rule' => 'email',
+				),
+			),
+		);
 }
